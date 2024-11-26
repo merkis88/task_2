@@ -1,0 +1,13 @@
+{% extends "base_generic.html" %}
+{% load order_tags %}
+
+{% block content %}
+
+<h1>Design Pro</h1>
+<p>Дизайн интерьеров</p>
+    {% if user.is_authenticated %}
+    {% show_all_tags %}
+    {% else %}
+    <span> Что бы увидеть свои заказы, Вы должны авторизоваться</span>
+    {% endif %}
+{% endblock %}

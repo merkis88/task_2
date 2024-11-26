@@ -1,0 +1,21 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <div class="orders-container">
+    <h2>Ваши заказы</h2>
+    {% for order in orders %}
+      <div class="order-item">
+        <img src="{{ order.photo.url }}" alt="Фото заявки" style="max-width: 200px;"><br>
+        <span>Название заказа: {{ order.title }}</span><br>
+        <span>Описание заказа: {{ order.description }}</span><br>
+        <span>Статус заказа: {{ order.status  }}</span><br>
+        <span>Время создания: {{ order.time_create }}</span><br>
+        <form action="{% url 'order:delete' order.pk %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit"  class="btn btn-primary" >Удалить</button>
+        </form>
+
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

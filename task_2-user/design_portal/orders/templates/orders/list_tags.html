@@ -1,0 +1,18 @@
+<h2>Последние выполненные заказы</h2>
+<ul>
+    {% for order in orders %}
+        <li>
+            <p><strong>Временная метка:</strong> {{ order.time_create }}</p>
+            <p><strong>Название:</strong> {{ order.title }}</p>
+            <p><strong>Категория заявки:</strong> {{ order.description }}</p>
+            {% if order.photo %}
+                <img src="{{ order.photo.url }}" alt="Фото заявки" style="max-width: 200px;">
+            {% else %}
+                <p>Фото отсутствует</p>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+<h2>Счетчики</h2>
+<p><strong>Количество заявок в статусе "Принято в работу":</strong> {{ accepted_count }}</p>

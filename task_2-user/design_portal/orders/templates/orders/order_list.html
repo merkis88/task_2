@@ -5,17 +5,20 @@
     <h2>Ваши заказы</h2>
     {% for order in orders %}
       <div class="order-item">
-        <img src="{{ order.photo.url }}" alt="Фото заявки" style="max-width: 200px;"><br>
-        <span>Название заказа: {{ order.title }}</span><br>
-        <span>Описание заказа: {{ order.description }}</span><br>
-        <span>Статус заказа: {{ order.status  }}</span><br>
-        <span>Время создания: {{ order.time_create }}</span><br>
-        <form action="{% url 'order:delete' order.pk %}" method="post" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit"  class="btn btn-primary" >Удалить</button>
-        </form>
+        <h3>Название заказа: {{ order.title }}</h3>
+        <p>Описание заказа: {{ order.description }}</p>
+        <p>Статус заказа: {{ order.status }}</p>
+        <p>Время создания: {{ order.time_create }}</p>
 
+        <div class="order-photos">
+          {% for photo in order.photos.all|slice:":3" %}
+            <img src="{{ photo.photo.url }}" alt="Фото заявки" style="max-width: 200px;">
+          {% endfor %}
+        </div>
+
+        <a href="{% url 'order:delete' order.pk %}">Удалить</a>
       </div>
     {% endfor %}
   </div>
 {% endblock %}
+

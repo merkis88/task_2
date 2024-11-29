@@ -55,7 +55,7 @@ body {
   display: flex;
   justify-content: center;  /* Центрирует по горизонтали */
   align-items: center;      /* Центрирует по вертикали */
-  height: 90vh;
+  height: 900vh;
 }
 
 .form-container {

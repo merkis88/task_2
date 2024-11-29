@@ -5,8 +5,10 @@
             <p><strong>Временная метка:</strong> {{ order.time_create }}</p>
             <p><strong>Название:</strong> {{ order.title }}</p>
             <p><strong>Категория заявки:</strong> {{ order.description }}</p>
-            {% if order.photo %}
-                <img src="{{ order.photo.url }}" alt="Фото заявки" style="max-width: 200px;">
+            {% if order.photos %}
+                {% for photo in order.photos.all|slice:":3" %}
+                    <img src="{{ photo.photo.url }}" alt="Фото заявки" style="max-width: 200px;">
+                {% endfor %}
             {% else %}
                 <p>Фото отсутствует</p>
             {% endif %}

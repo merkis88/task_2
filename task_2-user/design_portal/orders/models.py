@@ -10,11 +10,21 @@ class Order(models.Model):
 
     title = models.CharField(max_length=100)
     description = models.TextField()
-    status = models.CharField(max_length=50, choices=ChoicesStatus.choices,
-                              default=ChoicesStatus.NEW, verbose_name='Статус заказа')
-    photo = models.ImageField('Изображение категории', upload_to='image/', default=None, null=True)
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='orders')
-    time_create = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
+    status = models.CharField(
+        max_length=50,
+        choices=ChoicesStatus.choices,
+        default=ChoicesStatus.NEW,
+        verbose_name='Статус заказа'
+    )
+    user = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name='orders'
+    )
+    time_create = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Время создания"
+    )
 
     objects = models.Manager()
 
@@ -28,3 +38,19 @@ class Order(models.Model):
         indexes = [
             models.Index(fields=['-time_create'])
         ]
+
+
+class OrderPhoto(models.Model):
+    order = models.ForeignKey(
+        'Order',
+        on_delete=models.CASCADE,
+        related_name='photos',
+        verbose_name='Заказ'
+    )
+    photo = models.ImageField(
+        'Фотография заказа',
+        upload_to='order_photos/'
+    )
+
+    def __str__(self):
+        return f"Фото для заказа #{self.order.id}"  # type: ignore

@@ -1,11 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseForbidden
-from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, ListView
 
-from .forms import CreateOrderForm, UpdateOrderStatusForm
-from .models import Order
+from .forms import CreateOrderForm
+from .models import Order, OrderPhoto
 
 
 class OrderListView(LoginRequiredMixin, ListView):
@@ -26,8 +25,15 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('order:list')
 
     def form_valid(self, form):
-        data = form.save(commit=False)
-        data.user = self.request.user
+        order = form.save(commit=False)
+        order.user = self.request.user
+        order.save()
+
+        photos = form.cleaned_data.get('photos')
+        if photos:
+            for photo in photos:
+                OrderPhoto.objects.create(order=order, photo=photo)
+
         return super().form_valid(form)
 
 
@@ -50,18 +56,3 @@ class DeleteOrderView(LoginRequiredMixin, DeleteView):
         if order.status in ['Принято', 'Выполнено']:
             return HttpResponseForbidden("Удаление запрещено.")
         return super().post(request, *args, **kwargs)
-
-
-class UpdateOrderStatusView(LoginRequiredMixin, UpdateView):
-    model = Order
-    form_class = UpdateOrderStatusForm
-    template_name = 'orders/update_status.html'
-
-    def form_valid(self, form):
-        order = form.save(commit=False)
-        # Только администратор может менять статус
-        if self.request.user.is_staff:
-            order.save()
-            return redirect('order:list')
-        else:
-            return HttpResponseForbidden("Вы не можете менять статус.")

@@ -8,6 +8,10 @@ class CustomUser(AbstractUser):
     consent_data = models.BooleanField("Согласие на обработку данных", default=False)
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'username'
-
+    is_activated = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name="Прошел активацию?")
+    # Для подтверждения почты
     def __str__(self):
         return self.username

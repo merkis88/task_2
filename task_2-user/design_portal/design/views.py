@@ -54,15 +54,10 @@ class ProfileUser(LoginRequiredMixin, TemplateView):
 
 # Новое
 
-def activate_user(request, uid, token):
-    """
-    Активация учетной записи пользователя.
-    """
-    user = get_object_or_404(CustomUser, pk=uid)
-
-    if default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        return HttpResponse("Ваш аккаунт успешно активирован! Теперь вы можете войти.")
-    else:
-        return HttpResponse("Неверный токен или пользователь уже активирован.")
+def activate_account(request, token):
+    try:
+        user = CustomUser.objects.get(activation_token=token)
+        user.activate_account()
+        return HttpResponse('Ваша учетная запись активирована. Теперь вы можете войти.')
+    except CustomUser.DoesNotExist:
+        return HttpResponse('Неверный токен активации.')

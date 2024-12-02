@@ -10,4 +10,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/', views.ProfileUser.as_view(), name='profile'),  # Каталог
     path('home/', views.index, name='home'),  # Добавляем маршрут с именем 'home'
+    path('activate/<uuid:token>/', views.activate_account, name='activate_account'),
 ]

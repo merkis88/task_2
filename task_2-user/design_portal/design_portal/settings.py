@@ -136,3 +136,4 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'qwertypqwertyp12345@gmail.com'
 EMAIL_HOST_PASSWORD = 'qwertypqwertyp12345@gmail.com'
 EMAIL_PORT = 465
+SITE_URL = 'https://your-site.com'

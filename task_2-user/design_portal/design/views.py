@@ -1,17 +1,14 @@
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.views import generic, View
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.utils.http import urlsafe_base64_decode
+from django.views import View
 from django.views.generic import CreateView, TemplateView
-from django.shortcuts import get_object_or_404, redirect
-from .models import CustomUser
 
 from .forms import LoginForm, RegisterUserForm
+from .utils import send_verification_email, account_activation_token
 
 
 # Главная страница
@@ -25,6 +22,43 @@ class RegisterUser(CreateView):
     template_name = 'registration/register.html'
     extra_context = {'title': "Register"}
     success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.is_active = False
+        user.save()
+
+        self.request.session['user_email'] = user.email
+        send_verification_email(self.request, user)
+        return super().form_valid(form)
+
+
+class UserConfirmEmailView(View):
+
+    def get(self, request, uidb64, token):
+        User = get_user_model()
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = get_object_or_404(User, pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True
+            user.save()
+            return redirect('email_confirmed')
+        else:
+            return redirect('email_confirmation_failed')
+
+
+class EmailConfirmedView(TemplateView):
+    template_name = 'registration/email_confirmed.html'
+    extra_context = {'title': 'Your email address has been activated'}
+
+
+class EmailConfirmationFailedView(TemplateView):
+    template_name = 'registration/email_confirmation_failed.html'
+    extra_context = {'title': 'Invalid link'}
 
 
 class LoginUser(LoginView):
@@ -51,13 +85,3 @@ class ProfileUser(LoginRequiredMixin, TemplateView):
 
     def get_object(self, queryset=None):
         return self.request.user
-
-# Новое
-
-def activate_account(request, token):
-    try:
-        user = CustomUser.objects.get(activation_token=token)
-        user.activate_account()
-        return HttpResponse('Ваша учетная запись активирована. Теперь вы можете войти.')
-    except CustomUser.DoesNotExist:
-        return HttpResponse('Неверный токен активации.')

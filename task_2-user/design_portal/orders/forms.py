@@ -9,12 +9,12 @@ class MultipleFileInput(forms.ClearableFileInput):
 
 class MultipleFileField(forms.FileField):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput())
+        kwargs.setdefault("widget", MultipleFileInput()) # Автоматически наследует виджет
         super().__init__(*args, **kwargs)
 
-    def clean(self, data, initial=None):
+    def clean(self, data, initial=None): # data - входные данные, файлы загруженные через форму
         single_file_clean = super().clean
-        if isinstance(data, (list, tuple)):  # Если передан список файлов
+        if isinstance(data, (list, tuple)): # Если передан список файлов
             result = [single_file_clean(d, initial) for d in data]
         else:  # Если один файл
             result = single_file_clean(data, initial)
@@ -22,7 +22,7 @@ class MultipleFileField(forms.FileField):
 
 
 class CreateOrderForm(forms.ModelForm):
-    photos = MultipleFileField(
+    photos = MultipleFileField( # Виджет был создан при помощи комбинации ClearableFileInput и FileField
         required=False,
         widget=MultipleFileInput(attrs={'multiple': True})
     )
